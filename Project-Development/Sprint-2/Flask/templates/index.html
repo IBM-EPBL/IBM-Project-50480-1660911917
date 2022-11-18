@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ai Powered Nutrition Analyzer</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Mukta:wght@200;400&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div>
+          <h1>
+            <span class="ai">AI</span>
+            <span>
+              <span>NUTRITION</span>
+              <span>ANALYZER</span>
+            </span>
+          </h1>
+          <p class="description">
+            Diet is the essential key to all successful healing. Without a
+            properly balanced diet, the effectiveness of herbal treatment is
+            very limited
+          </p>
+          <a href="#predict">Try it now</a>
+        </div>
+      </section>
+
+      <section class="predict" id="predict">
+        <h2>Classify your Image</h2>
+        <div>
+          <img
+            src=""
+            alt="uploaded"
+            class="uploaded-image hidden"
+            data-item="uploaded-image"
+          />
+          <div class="upload-container" data-item="file-drop-area">
+            <img
+              src="{{ url_for('static', filename='img/upload_icon.svg') }}"
+              alt="upload file"
+            />
+            <div>
+              <p>Drag and drop or &nbsp;</p>
+              <label>
+                <span>browse</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  id="upload"
+                  data-item="upload-input"
+                />
+              </label>
+            </div>
+          </div>
+          <div class="result-container">
+            <div data-item="prediction-intro">
+              <p>WE USE MACHINE LEARNING MODAL TO CLASSIFY YOUR IMAGE!</p>
+              <p>
+                Machine intelligence is the last invention that humanity will
+                ever need to make
+              </p>
+            </div>
+            <div class="hidden" data-item="prediction-container">
+              <p>The provided image is classified as:</p>
+              <h2></h2>
+
+              <table data-item="prediction-table" class="hidden">
+                <thead>
+                  <tr>
+                    <th>Nutrition</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div>
+              <button class="secondary hidden" data-item="change-image">
+                Change Image
+              </button>
+              <button class="hidden" data-item="classify-btn">Classify</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script
+      defer
+      src="{{ url_for('static', filename='js/script.js') }}"
+    ></script>
+  </body>
+</html>
