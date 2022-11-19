@@ -1,77 +1,97 @@
-from flask import Flask, render_template, request
-from keras.models import load_model
-from keras.preprocessing.image import image_utils
-from os import path, environ
-from requests import get
-import numpy as np
+from flask import Flask, render_template, request, redirect
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 
-API_KEY = environ.get("API_KEY")
-API_HOST = environ.get("API_HOST")
+from constants import SECRET_KEY, DB_URL
+from utils import register_user, login_user, predict, get_nutrition_value, save_image
+from datetime import datetime
 
 app = Flask(__name__)
-model = load_model('./model.h5')
-url = "https://calorieninjas.p.rapidapi.com/v1/nutrition"
-headers = {
-	"X-RapidAPI-Key": API_KEY,
-	"X-RapidAPI-Host": API_HOST
-}
-print("\nModel loaded\n")
 
-def save_image(file):
-    root_path = path.dirname(__file__)
-    file_path = path.join(root_path, 'uploads', file.filename)
-    file.save(file_path)
+# CONFIG
+app.config["SECRET_KEY"] = SECRET_KEY
+app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
-    print(f"\nFILE SAVED: {file.filename} at {file_path}\n")
-    return file_path
+db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
 
-def predict(file_path):
-    # preprocessing the image
-    file = image_utils.load_img(file_path, target_size=(64,64))
-    file = image_utils.img_to_array(file)
-    x = np.expand_dims(file, axis=0)
+with app.app_context():
+    db.create_all()
 
-    # classifying the image
-    prediction = model.predict(x)[0]
-    max_index = np.where(prediction == np.amax(prediction))[0]
-    labels = ["Apple", 'Banana', 'Orange', 'Pineapple', 'Watermelon']
+class User(UserMixin, db.Model):
+   id = db.Column(db.Integer, primary_key=True)
+   username = db.Column(db.String(15), nullable=False)
+   email = db.Column(db.String(50), unique=True, nullable=False)
+   password = db.Column(db.String(50), nullable=False)
 
-    print(f"""
-PREDICTIONS: 
- - {labels[0]} = {prediction[0]}
- - {labels[1]} = {prediction[1]}
- - {labels[2]} = {prediction[2]}
- - {labels[3]} = {prediction[3]}
- - {labels[4]} = {prediction[4]}
-    """)
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(id)
 
-    predicted_label = labels[max_index[0]]
-
-    print(f"PREDICTION RESULT: {predicted_label}\n")
-    return predicted_label
-
-def get_nutrition_value(fruit):
-    response = get(url, headers=headers, params={"query": fruit})
-    data = response.json()
-    items = data.get('items', [])
-    item = items[0] if len(items) > 0 else None
-
-    print(f"\nRESPONSE: {item}\n")
-    return item
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    return redirect('/login')
 
 @app.route('/')
+@login_required
 def home_route():
-    return render_template('index.html')
+    if not current_user.is_authenticated:
+        return redirect("/login")
+
+    username = current_user.username
+    return render_template('index.html', username=username)
+
+@app.route('/register', methods=['GET','POST'])
+def register_route():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email', None)
+        password = request.form.get('password', None)
+        register_user(db, User, username, email, password)
+
+        return redirect('/')
+
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST']) 
+def login_route():
+    if request.method == "POST":
+        email = request.form.get('email', None)
+        password = request.form.get('password', None)
+        login_success = login_user(User, email, password)
+
+        if not login_success:
+            return redirect('/login')
+            
+        return redirect('/')
+
+    return render_template('login.html')
+
 
 @app.route('/api/predict', methods=["POST"])
+@login_required
 def predict_route():
     if request.method != "POST":
         return render_template('index.html')
 
+    user_folder = f"{current_user.id}_{current_user.username}"
     file = request.files["file"]
-    file_path = save_image(file)
+    file_path = save_image(file, user_folder)
     prediction = predict(file_path)
 
     nutrition = get_nutrition_value(prediction)
 
     return {"label": prediction, 'nutrition': nutrition}
+
+"""
+SQL QUERY TO CREATE TABLE:
+
+CREATE TABLE user(
+    id VARCHAR(255) PRIMARY KEY,
+    username VARCHAR(255),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+"""

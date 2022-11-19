@@ -1,0 +1,65 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Mukta", sans-serif;
+  scroll-behavior: smooth;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  height: 100vh;
+  background-image: url("../img/auth_background.jpg");
+  background-position: 25% 30%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.container form {
+  margin-left: 10%;
+  padding: 2em;
+  border-radius: 0.5em;
+  width: max-content;
+}
+
+.container form h4 {
+  font-size: 2em;
+  text-align: left;
+  margin-bottom: 1.5em;
+}
+
+.container form label {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 1em;
+}
+
+.container form button {
+  margin-top: 1em;
+  padding: 0.5em 1em;
+  margin-left: -0.5em;
+  border: none;
+  border-radius: 0.5em;
+  background-color: #6bc75d;
+  color: #fff;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.container form p small {
+  display: block;
+  margin-top: 2em;
+}
+
+input {
+  padding: 0.5em;
+  display: block;
+  border: none;
+}
+
+input:focus {
+  outline: none;
+}

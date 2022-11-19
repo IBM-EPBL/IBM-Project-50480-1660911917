@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ai Powered Nutrition Analyzer</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/auth.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <form action="register" method="POST">
+        <h4>User Registration</h4>
+        <label>
+          <span>Username:</span>
+          <input type="text" name="username" required />
+        </label>
+        <label>
+          <span>Email:</span>
+          <input type="email" name="email" required />
+        </label>
+        <label>
+          <span>Password:</span>
+          <input type="password" name="password" required />
+        </label>
+        <button type="submit">Register</button>
+        <p>
+          <small>Already a user? <a href="/login">login</a></small>
+        </p>
+      </form>
+    </div>
+  </body>
+</html>
